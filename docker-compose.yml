@@ -1,0 +1,54 @@
+version: "3.8"
+
+services:
+    app:
+        build:
+            context: ./docker/php
+            dockerfile: Dockerfile
+        container_name: ticket-system-app
+        restart: unless-stopped
+        working_dir: /var/www/
+        volumes:
+            - ./:/var/www
+        networks:
+            - ticket-system
+
+    nginx:
+        build:
+            context: ./docker/nginx
+            dockerfile: Dockerfile
+        container_name: ticket-system-nginx
+        restart: unless-stopped
+        ports:
+            - "8000:80"
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+        networks:
+            - ticket-system
+        depends_on:
+            - app
+
+    db:
+        image: mysql:8.0
+        container_name: ticket-system-db
+        restart: unless-stopped
+        environment:
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_USER: laravel
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+        volumes:
+            - mysql_data:/var/lib/mysql
+            - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
+        ports:
+            - "33066:3306"
+        networks:
+            - ticket-system
+
+networks:
+    ticket-system:
+        driver: bridge
+
+volumes:
+    mysql_data:
