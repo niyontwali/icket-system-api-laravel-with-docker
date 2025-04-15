@@ -7,60 +7,143 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-## About Laravel
+# Ticket System API
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+A Laravel-based RESTful API for managing support tickets. The system includes user authentication, role-based access control, ticket management, and commenting capabilities.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+-   **Authentication**: JWT-based authentication using Laravel Sanctum
+-   **User Management**: Support for staff and admin roles
+-   **Ticket Management**: Create, read, update, and delete support tickets
+-   **Comment System**: Add and manage comments on tickets (admin only)
+-   **Priority Levels**: Support for different ticket priority levels (low, medium, high, critical)
+-   **Status Tracking**: Track ticket status (open, in_progress, resolved)
+-   **Assignment**: Assign tickets to specific users
 
-## Learning Laravel
+## Requirements
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+-   Docker and Docker Compose
+-   PHP 8.2 or higher (for local development without Docker)
+-   Composer (for local development without Docker)
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Quick Start with Docker
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+1. Clone the repository
+2. Copy the environment file:
 
-## Laravel Sponsors
+    ```bash
+    cp .env.example .env
+    ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+3. Configure your `.env` file with your database credentials:
 
-### Premium Partners
+    ```
+    DB_CONNECTION=mysql
+    DB_HOST=db
+    DB_PORT=3306
+    DB_DATABASE=your_database_name
+    DB_USERNAME=your_username
+    DB_PASSWORD=your_password
+    ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+4. Start the Docker containers:
 
-## Contributing
+    ```bash
+    docker compose up -d
+    ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+5. Run migrations and seed the database:
+    ```bash
+    docker compose exec app php artisan migrate
+    docker compose exec app php artisan db:seed
+    ```
 
-## Code of Conduct
+The API will be available at `http://localhost:8000`
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Default Admin User
 
-## Security Vulnerabilities
+After seeding the database, you can use these credentials:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+-   Email: john.admin@gmail.com
+-   Role: admin
+
+## Docker Commands
+
+-   **Start containers**: `docker compose up -d`
+-   **Stop containers**: `docker compose down`
+-   **View logs**: `docker compose logs`
+-   **Execute commands in app container**: `docker compose exec app <command>`
+-   **Access MySQL**: `docker compose exec db mysql -u your_username -pyour_password`
+
+## API Endpoints
+
+### Authentication
+
+-   `POST /api/login` - Login user
+-   `POST /api/logout` - Logout user (requires auth)
+-   `POST /api/register` - Register new user (requires admin auth)
+
+### Users
+
+-   `GET /api/users` - List all users (requires auth)
+-   `GET /api/user` - Get authenticated user details (requires auth)
+
+### Tickets
+
+-   `GET /api/tickets` - List all tickets (requires auth)
+-   `POST /api/tickets` - Create a new ticket (requires auth)
+-   `GET /api/tickets/{id}` - Get ticket details (requires auth)
+-   `PUT /api/tickets/{id}` - Update ticket (requires auth)
+-   `DELETE /api/tickets/{id}` - Delete ticket (requires auth)
+
+### Comments (Admin Only)
+
+-   `GET /api/comments` - List all comments
+-   `POST /api/comments` - Add a comment to a ticket
+-   `GET /api/comments/{id}` - Get comment details
+-   `PUT /api/comments/{id}` - Update comment
+-   `DELETE /api/comments/{id}` - Delete comment
+
+## Ticket Properties
+
+-   **Status**: open, in_progress, resolved
+-   **Priority**: low, medium, high, critical
+-   **Fields**:
+    -   title (string, required)
+    -   description (string, required)
+    -   status (enum)
+    -   priority (enum)
+    -   assigned_to (user_id)
+
+## Development
+
+For local development without Docker:
+
+1. Install dependencies:
+
+    ```bash
+    composer install
+    ```
+
+2. Configure your local environment
+3. Run migrations and seeders:
+
+    ```bash
+    php artisan migrate --seed
+    ```
+
+4. Start the development server:
+    ```bash
+    php artisan serve
+    ```
+
+## Database Connection
+
+-   **Local Access**: localhost:33066
+-   **Docker Network Access**: db:3306
+-   **Default Database**: ticket_system_api
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-sourced software licensed under the MIT license.
