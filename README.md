@@ -134,7 +134,3 @@ For local development without Docker:
 -   **Local Access**: localhost:33066
 -   **Docker Network Access**: db:3306
 -   **Default Database**: ticket_system_api
-
-## License
-
-This project is open-sourced software licensed under the MIT license.
